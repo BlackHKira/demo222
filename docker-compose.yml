@@ -5,8 +5,22 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file: # Kéo biến môi trường từ file .env vào App
+      - .env
     depends_on:
       - alloy
+      - postgres # Đảm bảo DB chạy lên trước khi App chạy
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432" # Ánh xạ cổng ra ngoài để DataGrip kết nối
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   alloy:
     image: grafana/alloy:latest
@@ -42,3 +56,6 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - tempo
+
+volumes:
+  postgres_data:
